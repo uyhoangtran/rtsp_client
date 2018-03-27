@@ -93,14 +93,14 @@ int32_t UdpConnect(struct sockaddr_in *addr, char *ip, uint32_t port, uint32_t s
     }
 
     remote->sin_port = htons(port);
-#if 0
+//#if 1
     if (connect(sockfd,
                 (struct sockaddr *)remote, sizeof(struct sockaddr)) == -1) {
         close(sockfd);
         fprintf(stderr, "Error connecting to %s:%d\n", ip, port);
         return -1;
     }
-#endif
+//#endif
 
     return True;
 }

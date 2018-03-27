@@ -214,18 +214,33 @@ int32_t RtspSetupCommand(RtspSession *sess)
 #ifdef RTSP_DEBUG
     printf("SETUP Reply: %s\n", buf);
 #endif
-    if (False == RtspCheckResponseStatus(buf))
-        return False;
+    switch (RtspCheckResponseStatus(buf))
+    {
+        case ST_OK:
+        {
+            if (RTP_AVP_UDP == sess->trans){
+                ParseUdpPort(buf, num, sess);
+            }else{
+                ParseInterleaved(buf, num, sess);
+            }
+            ParseSessionID(buf, num, sess);
+            sess->packetization = 1;
+            sess->status = RTSP_PLAY;
+            return True;
+        }
+        case ST_UNAUTHORIZED:
+        {
+            sess->auth_struct.is_auth_required = True;
+            sess->status = RTSP_SETUP;
+            ParseUnauthorizedMess(buf,num,sess);
+            return True;
+        }
+        default:
+        {
 
-    if (RTP_AVP_UDP == sess->trans){
-        ParseUdpPort(buf, num, sess);
-    }else{
-        ParseInterleaved(buf, num, sess);
+        }
     }
-    ParseSessionID(buf, num, sess);
-    sess->packetization = 1;
-    sess->status = RTSP_PLAY;
-    return True;
+    return False;
 }
 
 static int32_t RtspSendPlayCommand(RtspSession *sess)
@@ -276,13 +291,29 @@ int32_t RtspPlayCommand(RtspSession *sess)
 #ifdef RTSP_DEBUG
     printf("PLAY Reply: %s\n", buf);
 #endif
-    if (False == RtspCheckResponseStatus(buf))
-        return False;
-    ParseTimeout(buf, num, sess);
-    gettimeofday(&sess->last_cmd_time, NULL);
-    sess->status = RTSP_KEEPALIVE;
-    RtspSendKeepAliveCommand(sess);
-    return True;
+    switch (RtspCheckResponseStatus(buf))
+    {
+        case ST_OK:
+        {
+            ParseTimeout(buf, num, sess);
+            gettimeofday(&sess->last_cmd_time, NULL);
+            sess->status = RTSP_KEEPALIVE;
+            RtspSendKeepAliveCommand(sess);
+            return True;
+        }
+        case ST_UNAUTHORIZED:
+        {
+            sess->auth_struct.is_auth_required = True;
+            sess->status = RTSP_PLAY;
+            ParseUnauthorizedMess(buf,num,sess);
+            return True;
+        }
+        default:
+        {
+
+        }
+    }
+    return False;
 }
 
 static int32_t RtspSendKeepAliveCommand(RtspSession *sess)
@@ -359,9 +390,25 @@ int32_t RtspGetParameterCommand(RtspSession *sess)
 #ifdef RTSP_DEBUG
     printf("GET PARAMETER Reply: %s\n", buf);
 #endif
-    if (False == RtspCheckResponseStatus(buf))
-        return False;
-    return True;
+    switch (RtspCheckResponseStatus(buf))
+    {
+        case ST_OK:
+        {
+            return True;
+        }
+        case ST_UNAUTHORIZED:
+        {
+            sess->auth_struct.is_auth_required = True;
+            sess->status = RTSP_GET_PARAMETER;
+            ParseUnauthorizedMess(buf,num,sess);
+            return True;
+        }
+        default:
+        {
+
+        }
+    }
+    return False;
 }
 
 
@@ -423,7 +470,7 @@ static RtspCmdHdl rtspcmdhdl[] = {{RTSP_OPTIONS, RtspOptionsCommand},
                                 {RTSP_SETUP, RtspSetupCommand},
                                 {RTSP_PLAY, RtspPlayCommand},
                                 {RTSP_GET_PARAMETER, RtspGetParameterCommand},
-                                {RTSP_TEARDOWN, RtspTeardownCommand},
+                          //      {RTSP_TEARDOWN, RtspTeardownCommand},
                                 {RTSP_KEEPALIVE, RtspKeepAliveCommand}};
 
 int32_t RtspStatusMachine(RtspSession *sess)

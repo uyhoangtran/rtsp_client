@@ -346,13 +346,12 @@ int32_t ParseUnauthorizedMess(char *buf, uint32_t size, RtspSession *sess)
     }
     p += strlen(AUTH_REALM);
     char *ptr = p+1;
-    char tmp[32] = {0x00};
+    char *tmp = calloc(sizeof(char),32);
     char i=0;
-    memset(tmp, 0x00, sizeof(tmp));
     while(1){
         if(*ptr != '"')
         {
-            tmp[i] = *ptr;
+            *(tmp + i) = *ptr;
             i++;
             ptr++;
         }
@@ -362,7 +361,7 @@ int32_t ParseUnauthorizedMess(char *buf, uint32_t size, RtspSession *sess)
         }
     }
     memset(sess->auth_struct.realm,0x00,33);
-    memcpy(sess->auth_struct.realm,tmp,sizeof(tmp));
+    memcpy(sess->auth_struct.realm,tmp,32);
     
     /* Parsing NONCE */
     p = strstr(buf,AUTH_NONCE);
@@ -371,16 +370,9 @@ int32_t ParseUnauthorizedMess(char *buf, uint32_t size, RtspSession *sess)
         return False;
     }
     p += strlen(AUTH_NONCE);
-    ptr = p+1;
-    i=0;
-    memset(tmp, 0x00, sizeof(tmp));
-    for(i=0; i<32; i++)
-    {
-        tmp[i] = *ptr;
-        ptr++;
-    }
     memset(sess->auth_struct.nonce,0x00,33);
-    memcpy(sess->auth_struct.nonce,tmp,sizeof(tmp));
+    memcpy(sess->auth_struct.nonce,p+1,32);
+    free(tmp);
 
 #ifdef RTSP_DEBUG
     printf("realm : %s\n", sess->auth_struct.realm);
@@ -396,11 +388,11 @@ void MakeDigestCodeResponse(RtspSession *sess,const char* command)
     ha2_length = strlen(command)+strlen(sess->url) + 1;
     response_length = 32*3 + 2;
 
-    uint8_t *ha1_str,*ha2_str,*response_str;
-    uint8_t *ha1 = (uint8_t *)calloc(sizeof(uint8_t),33);
-    uint8_t *ha2 = (uint8_t *)calloc(sizeof(uint8_t),33);
+    char *ha1_str,*ha2_str,*response_str;
+    char *ha1 = (char *)calloc(sizeof(char),33);
+    char *ha2 = (char *)calloc(sizeof(char),33);
     /* Calculate ha1 */
-    if((ha1_str = (uint8_t *)malloc(ha1_length)) == NULL)
+    if((ha1_str = (char *)malloc(ha1_length)) == NULL)
     {
         #ifdef RTSP_DEBUG
             fprintf(stderr,"Failed to make Digest Response: malloc error\n");
@@ -413,7 +405,7 @@ void MakeDigestCodeResponse(RtspSession *sess,const char* command)
     puts(ha1_str);
     free(ha1_str);
     /* Calculate ha2 */
-    if((ha2_str = (uint8_t *)malloc(ha2_length)) == NULL)
+    if((ha2_str = (char *)malloc(ha2_length)) == NULL)
     {
         #ifdef RTSP_DEBUG
             fprintf(stderr,"Failed to make Digest Response: malloc error\n");
@@ -424,10 +416,11 @@ void MakeDigestCodeResponse(RtspSession *sess,const char* command)
     md5(ha2_str,ha2_length,ha2);
    // memcpy(sess->auth_struct.ha2,ha2_str,sizeof(sess->auth_struct.ha2));
     puts(ha2_str);
+    puts(ha2);
     free(ha2_str);
 
     /* Calculate response */
-    if((response_str = (uint8_t *)malloc(response_length)) == NULL)
+    if((response_str = (char *)malloc(response_length)) == NULL)
     {
         #ifdef RTSP_DEBUG
             fprintf(stderr,"Failed to make Digest Response: malloc error\n");
@@ -438,6 +431,7 @@ void MakeDigestCodeResponse(RtspSession *sess,const char* command)
     md5(response_str,response_length,sess->auth_struct.auth_response);
     free(ha1);
     free(ha2);
-    puts(response_str);
+    printf("\n%s",response_str);
+    printf("\nresponse_length %d\n",response_length);
     free(response_str);
 }

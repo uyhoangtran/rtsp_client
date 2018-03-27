@@ -168,8 +168,10 @@ void* RtspHandleUdpConnect(void* args)
 
     int32_t rtpfd = CreateUdpServer(sess->ip, sess->transport.udp.cport_from);
     int32_t rtcpfd = CreateUdpServer(sess->ip, sess->transport.udp.cport_to);
-    UdpConnect(&sess->rtpsess.addrfrom, sess->ip, sess->transport.udp.sport_from, rtpfd);
-    UdpConnect(&sess->rtpsess.addrto, sess->ip, sess->transport.udp.sport_to, rtcpfd);
+    if(UdpConnect(&sess->rtpsess.addrfrom, sess->ip, sess->transport.udp.sport_from, rtpfd)<0)
+        return NULL;
+    if(UdpConnect(&sess->rtpsess.addrto, sess->ip, sess->transport.udp.sport_to, rtcpfd)<0)
+        return NULL;
     int32_t num = 0x00, size = 4096;
     char    buf[size], framebuf[1920*1080];
     uint32_t length, framelen = 0x00;
@@ -180,7 +182,7 @@ void* RtspHandleUdpConnect(void* args)
     printf("ip, port : %s, %d\n", sess->ip, sess->transport.udp.cport_from);
 #endif
 #ifdef SAVE_FILE_DEBUG
-    FILE    *fp = fopen("1.264", "w+");
+    FILE    *fp = fopen("1.264", "a+");
     if (NULL == fp){
         fprintf(stderr, "fopen error!\n");
         return NULL;

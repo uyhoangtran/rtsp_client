@@ -63,9 +63,9 @@ typedef struct AUDIO_MEDIA{
 
 typedef struct authorization{
     char    is_auth_required; 
-    char    *realm[33];
-    char    *nonce[33];
-    char    *auth_response[33]; 
+    char    realm[33];
+    char    nonce[33];
+    char    auth_response[33]; 
 }auth_struct_t;
 
 typedef struct RTSPSESSION{

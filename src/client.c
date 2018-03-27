@@ -33,6 +33,7 @@ static void signal_handler(int signo)
     printf("catch signal NO. %d\n", signo);
     quitflag = 0x01;
     return;
+    exit(1);
 }
 
 static void signal_init()

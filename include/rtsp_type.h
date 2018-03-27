@@ -13,7 +13,6 @@
 #define RTSP_RESPONSE     "RTSP/1.0 "
 #define CMD_OPTIONS       "OPTIONS rtsp://%s:%d RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\n\r\n"
 #define CMD_DESCRIBE      "DESCRIBE %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\nAccept: application/sdp\r\n\r\n"
-#define CMD_DESCRIBE_AUTH "DESCRIBE %s RTSP/1.0\r\nCSeq: %i\r\nAuthorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\nUser-Agent: hoangtran\r\nAccept: application/sdp\r\n\r\n"
 #define CMD_TCP_SETUP     "SETUP %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\nTransport: RTP/AVP/TCP;unicast;interleaved=0-1\r\n\r\n"
 #define CMD_UDP_SETUP     "SETUP %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\nTransport: RTP/AVP;unicast;client_port=%d-%d\r\n\r\n"
 #define CMD_PLAY          "PLAY %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\nSession: %s\r\nRange: npt=0.00-\r\n\r\n"
@@ -37,8 +36,17 @@
 #define CONTENT_LENGTH    "Content-Length: "
 #define CONTENT_length    "Content-length: "
 
+/* Hoang */
+
 #define AUTH_REALM     "realm="
 #define AUTH_NONCE     "nonce="
+
+#define CMD_DESCRIBE_AUTH      "DESCRIBE %s RTSP/1.0\r\nCSeq: %i\r\nAuthorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\nUser-Agent: hoangtran\r\nAccept: application/sdp\r\n\r\n"
+#define CMD_TCP_SETUP_AUTH     "SETUP %s RTSP/1.0\r\nCSeq: %i\r\nAuthorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\nUser-Agent: hoangtran\r\nTransport: RTP/AVP/TCP;unicast;interleaved=0-1\r\n\r\n"
+#define CMD_UDP_SETUP_AUTH     "SETUP %s RTSP/1.0\r\nCSeq: %i\r\nAuthorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\nUser-Agent: hoangtran\r\nTransport: RTP/AVP;unicast;client_port=%d-%d\r\n\r\n"
+#define CMD_PLAY_AUTH          "PLAY %s RTSP/1.0\r\nCSeq: %i\r\nAuthorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\nUser-Agent: hoangtran\r\nSession: %s\r\nRange: npt=0.00-\r\n\r\n"
+#define CMD_GET_PARAMETER_AUTH "GET_PARAMETER %s RTSP/1.0\r\nCSeq: %i\r\nAuthorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\nSession: %s\r\n\r\n"
+#define CMD_TEARDOWN_AUTH      "TEARDOWN %s RTSP/1.0\r\nCSeq: %i\r\nAuthorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\nSession: %s\r\n\r\n"
 
 typedef signed char int8_t;
 typedef unsigned char uint8_t;

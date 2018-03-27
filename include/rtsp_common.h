@@ -6,7 +6,7 @@
 
 #define CLIENT_PORT_FLAG 0x0A
 #define SERVER_PORT_FLAG 0x0B
-#define RTSP_DEBUG
+//#define RTSP_DEBUG
 typedef struct CMD_TABLE{
     char cmd[64];
     int32_t key;

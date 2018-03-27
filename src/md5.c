@@ -11,10 +11,29 @@
 #include "md5.h"
 // leftrotate function definition
 #define LEFTROTATE(x, c) (((x) << (c)) | ((x) >> (32 - (c))))
- 
+static inline uint8_t _get_4bit(uint8_t x,uint8_t y)
+{   
+   return (((x) >> (y*4)) & 0x0F);
+}
 // These vars will contain the hash
 uint32_t h0, h1, h2, h3;
-
+void hex32_to_string(uint32_t num,uint8_t *str)
+{
+    printf("%x",num);
+    uint8_t i,d;
+    memset(str,0x00,8);
+    for (i=0;i<8;i++){
+        d = _get_4bit(num,7-i);
+        if (d<10)
+        {
+            *(str+i) = d +'0';
+        }
+        else
+        {
+            *(str+i) = d - 10 + 'a';
+        }
+    }
+}
 void swap_byte_order_32(uint32_t *pnum)
 {
     uint32_t num = *pnum;
@@ -171,7 +190,7 @@ void md5(uint8_t *initial_msg, size_t initial_len, char* out_msg) {
         swap_byte_order_32(&h1);
         swap_byte_order_32(&h2);
         swap_byte_order_32(&h3);
-        sprintf(out_msg,"%x%x%x%x",h0,h1,h2,h3);
+        sprintf(out_msg,"%.8x%.8x%.8x%.8x",h0,h1,h2,h3);
     // cleanup
     free(msg);
  
