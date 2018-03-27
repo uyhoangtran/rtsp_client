@@ -420,6 +420,10 @@ int32_t ParseRtspUrl(char *url, RtspSession *sess)
             sess->port = atol((const char *)tmp);
         }
         printf("sess port : %d\n", sess->port);
+        /* Parsing URL: */
+        strncpy(sess->url,PROTOCOL_PREFIX,strlen(PROTOCOL_PREFIX));
+        from = strchr(url,'@') + 1;
+        strcpy(sess->url + strlen(PROTOCOL_PREFIX),from);
     }while(0);
 
     return True;

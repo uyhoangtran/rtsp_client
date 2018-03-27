@@ -6,6 +6,6 @@
 #define SEPERATOR "\r\n\r\n"
 
 int32_t RtspReceiveResponse(uint32_t sockfd, BufferControl *bctrl);
-int32_t RtspCheckResponseStatus(char *buff);
+status_code_t RtspCheckResponseStatus(char *buff);
 
 #endif

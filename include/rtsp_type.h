@@ -11,11 +11,12 @@
 #define RTSP_PORT         554
 #define RTSP_CLIENT_PORT  9500
 #define RTSP_RESPONSE     "RTSP/1.0 "
-#define CMD_OPTIONS       "OPTIONS rtsp://%s:%d RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: don6hao\r\n\r\n"
-#define CMD_DESCRIBE      "DESCRIBE %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: don6hao\r\nAccept: application/sdp\r\n\r\n"
-#define CMD_TCP_SETUP     "SETUP %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: don6hao\r\nTransport: RTP/AVP/TCP;unicast;interleaved=0-1\r\n\r\n"
-#define CMD_UDP_SETUP     "SETUP %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: don6hao\r\nTransport: RTP/AVP;unicast;client_port=%d-%d\r\n\r\n"
-#define CMD_PLAY          "PLAY %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: don6hao\r\nSession: %s\r\nRange: npt=0.00-\r\n\r\n"
+#define CMD_OPTIONS       "OPTIONS rtsp://%s:%d RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\n\r\n"
+#define CMD_DESCRIBE      "DESCRIBE %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\nAccept: application/sdp\r\n\r\n"
+#define CMD_DESCRIBE_AUTH "DESCRIBE %s RTSP/1.0\r\nCSeq: %i\r\nAuthorization: Digest username=\"%s\", realm=\"%s\", nonce=\"%s\", uri=\"%s\", response=\"%s\"\r\nUser-Agent: hoangtran\r\nAccept: application/sdp\r\n\r\n"
+#define CMD_TCP_SETUP     "SETUP %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\nTransport: RTP/AVP/TCP;unicast;interleaved=0-1\r\n\r\n"
+#define CMD_UDP_SETUP     "SETUP %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\nTransport: RTP/AVP;unicast;client_port=%d-%d\r\n\r\n"
+#define CMD_PLAY          "PLAY %s RTSP/1.0\r\nCSeq: %i\r\nUser-Agent: hoangtran\r\nSession: %s\r\nRange: npt=0.00-\r\n\r\n"
 #define CMD_GET_PARAMETER "GET_PARAMETER %s RTSP/1.0\r\nCSeq: %i\r\nSession: %s\r\n\r\n"
 #define CMD_TEARDOWN      "TEARDOWN %s RTSP/1.0\r\nCSeq: %i\r\nSession: %s\r\n\r\n"
 #define UDP_TRANSPORT     "RTP/AVP"
@@ -36,14 +37,17 @@
 #define CONTENT_LENGTH    "Content-Length: "
 #define CONTENT_length    "Content-length: "
 
+#define AUTH_REALM     "realm="
+#define AUTH_NONCE     "nonce="
+
 typedef signed char int8_t;
 typedef unsigned char uint8_t;
 
 typedef int int32_t;
 typedef unsigned int uint32_t;
 
-typedef long long int64_t;
-typedef unsigned long long uint64_t;
+//typedef long long int64_t;
+//typedef unsigned long long uint64_t;
 
 typedef struct buffer_control{
     int32_t     len;

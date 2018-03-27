@@ -20,6 +20,13 @@ typedef enum{
     RTSP_QUIT
 }EN_RTSP_STATUS;
 
+typedef enum status_code {
+    ST_ERROR = 0,
+    ST_OK = 200,
+    ST_BAD_REQUEST = 400,
+    ST_UNAUTHORIZED=401,
+} status_code_t;
+
 typedef enum{
     RTP_AVP_TCP,
     RTP_AVP_UDP
@@ -54,6 +61,13 @@ typedef struct AUDIO_MEDIA{
     char control[128];
 }AudioMedia;
 
+typedef struct authorization{
+    char    is_auth_required; 
+    char    *realm[33];
+    char    *nonce[33];
+    char    *auth_response[33]; 
+}auth_struct_t;
+
 typedef struct RTSPSESSION{
     uint32_t port;
     int32_t  sockfd;
@@ -80,6 +94,7 @@ typedef struct RTSPSESSION{
     char  ip[16];
     char  trans;      /* RTP/AVP/UDP or RTP/AVP/TCP */
     char  reserve[2];
+    auth_struct_t auth_struct;
 }RtspSession;
 
 typedef struct RTSP_COMMOND_HANDLE{

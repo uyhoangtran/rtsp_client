@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include "rtsp.h"
 #include "rtsp_response.h"
 #include "net.h"
 
@@ -71,28 +71,27 @@ int32_t RtspReceiveResponse(uint32_t sockfd, BufferControl *bctrl)
 }
 
 
-int32_t RtspCheckResponseStatus(char *buff)
+status_code_t RtspCheckResponseStatus(char *buff)
 {
     int32_t offset = strlen(RTSP_RESPONSE);
     char buf[8], *sep = NULL;
+    status_code_t status_code = ST_ERROR;
 
     if (strncmp((const char*)buff, (const char*)RTSP_RESPONSE, offset) != 0) {
-        return -1;
+        return status_code;
     }
 
     sep = strchr((const char *)buff+offset, ' ');
     if (!sep) {
-        return -1;
+        return status_code;
     }
 
     memset(buf, '\0', sizeof(buf));
     strncpy((char *)buf, (const char *)(buff+offset), sep-buff-offset);
 
-    if (atoi(buf) != 200){
-        return False;
-    }
+    status_code = atoi(buf);
 
-    return True;
+    return status_code;
 }
 
 

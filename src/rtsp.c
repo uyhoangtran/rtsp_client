@@ -58,7 +58,7 @@ int32_t RtspOptionsCommand(RtspSession *sess)
 #ifdef RTSP_DEBUG
     printf("\nOptions Reply: %s\n", buf);
 #endif
-    if (False == RtspCheckResponseStatus(buf))
+    if (ST_OK != RtspCheckResponseStatus(buf))
         return False;
 
 
@@ -70,11 +70,23 @@ int32_t RtspOptionsCommand(RtspSession *sess)
 static int32_t RtspSendDescribeCommand(RtspSession *sess, char *buf, uint32_t size)
 {
     int32_t sock = sess->sockfd;
+    int32_t num;
     memset(buf, '\0', size);
-    int32_t num = snprintf(buf, size, CMD_DESCRIBE, sess->url, sess->cseq);
-    if (num < 0x00){
-        fprintf(stderr, "%s : snprintf error!\n", __func__);
-        return False;
+    if(sess->auth_struct.is_auth_required == False) {
+        num = snprintf(buf, size, CMD_DESCRIBE, sess->url, sess->cseq);
+        if (num < 0x00){
+            fprintf(stderr, "%s : snprintf error!\n", __func__);
+            return False;
+        }
+    } 
+    else {
+        MakeDigestCodeResponse(sess,"DESCRIBE");
+        num = snprintf(buf, size, CMD_DESCRIBE_AUTH, sess->url, sess->cseq,sess->username,\
+        sess->auth_struct.realm,sess->auth_struct.nonce,sess->url,sess->auth_struct.auth_response);
+        if (num < 0x00){
+            fprintf(stderr, "%s : snprintf error!\n", __func__);
+            return False;
+        }
     }
 
     num = TcpSendData(sock, buf, (uint32_t)num);
@@ -82,7 +94,7 @@ static int32_t RtspSendDescribeCommand(RtspSession *sess, char *buf, uint32_t si
         fprintf(stderr, "%s : Send Error\n", __func__);
         return False;
     }
-
+    
     return True;
 }
 
@@ -114,12 +126,27 @@ int32_t RtspDescribeCommand(RtspSession *sess)
 #ifdef RTSP_DEBUG
     printf("\nDescribe Reply: %s\n", buf);
 #endif
-    if (False == RtspCheckResponseStatus(buf))
-        return False;
-    ParseSdpProto(buf, num, sess);
-    sess->status = RTSP_SETUP;
+    switch (RtspCheckResponseStatus(buf))
+    {
+        case ST_OK:
+        {
+        ParseSdpProto(buf, num, sess);
+        sess->status = RTSP_SETUP;
+        return True;
+        }
+        case ST_UNAUTHORIZED:
+        {
+            sess->auth_struct.is_auth_required = True;
+            sess->status = RTSP_DESCRIBE;
+            ParseUnauthorizedMess(buf,num,sess);
+            return True;
+        }
+        default:
+        {
 
-    return True;
+        }
+    }
+    return False;
 }
 
 static int32_t RtspSendSetupCommand(RtspSession *sess)
@@ -145,7 +172,7 @@ static int32_t RtspSendSetupCommand(RtspSession *sess)
     if (RTP_AVP_TCP == sess->trans){
         num = snprintf(buf, size, CMD_TCP_SETUP, url, sess->cseq);
     }else if (RTP_AVP_UDP == sess->trans){
-        num = snprintf(buf, size, CMD_UDP_SETUP, url, sess->cseq, 30000, 30001);
+        num = snprintf(buf, size, CMD_UDP_SETUP, url, sess->cseq, 30000, 30020);
     }
     if (num < 0x00){
         fprintf(stderr, "%s : snprintf error!\n", __func__);

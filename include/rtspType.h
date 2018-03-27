@@ -36,6 +36,8 @@
 #define CONTENT_LENGTH    "Content-Length: "
 #define CONTENT_length    "Content-length: "
 
+#define AUTH_REALM     "realm="
+#define AUTH_NONCE     "nonce="
 typedef signed char int8_t;
 typedef unsigned char uint8_t;
 

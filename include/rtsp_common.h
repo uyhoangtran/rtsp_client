@@ -6,7 +6,7 @@
 
 #define CLIENT_PORT_FLAG 0x0A
 #define SERVER_PORT_FLAG 0x0B
-
+#define RTSP_DEBUG
 typedef struct CMD_TABLE{
     char cmd[64];
     int32_t key;
@@ -22,5 +22,10 @@ void GetSdpVideoAcontrol(char *buf, uint32_t size, RtspSession *sess);
 void RtspIncreaseCseq(RtspSession *sess);
 void ParseOptionsPublic(char *buf, uint32_t size, RtspSession *sess);
 int32_t RtspCommandIsSupported(int32_t key, RtspSession *sess);
+
+/* Hoang */
+int32_t ParseUnauthorizedMess(char *buf, uint32_t size, RtspSession *sess);
+void MakeDigestCodeResponse(RtspSession *sess,const char* command);
+
 
 #endif
