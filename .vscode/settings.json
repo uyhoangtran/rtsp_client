@@ -3,6 +3,8 @@
         "rtsp_common.h": "c",
         "rtsp_response.h": "c",
         "rtsp_type.h": "c",
-        "md5.h": "c"
+        "md5.h": "c",
+        "poll.h": "c",
+        "mqueue.h": "c"
     }
 }

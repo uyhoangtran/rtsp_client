@@ -9,7 +9,7 @@ OBJ:=./obj
 CC:=/opt/hisi-linux-nptl/arm-hisiv100-linux/bin/arm-hisiv100-linux-uclibcgnueabi-gcc
 #CC:=cc
 CC_FLAG:=-Wall -g  -DSAVE_FILE_DEBUG -DRTSP_DEBUG
-LD_FLAG:=-lpthread
+LD_FLAG:=-lpthread -lrt
 
 
 SOURCES:=$(wildcard $(SRC)/*.c)

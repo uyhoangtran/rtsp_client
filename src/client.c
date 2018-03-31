@@ -12,7 +12,10 @@
 #include <sys/time.h>
 #include <pthread.h>
 #include <signal.h>
-
+#include <unistd.h>
+#include <sys/mman.h>
+#include <semaphore.h>
+#include <mqueue.h>
 #include "rtsp_type.h"
 #include "rtsp_client.h"
 #include "tpool.h"
@@ -44,10 +47,13 @@ static void signal_init()
     return;
 }
 
+mqd_t mqd;
 int32_t main(int argc, char **argv)
 {
+    sleep(1);
     signal_init();
-
+    uint32_t length = 1920*1080;
+    mqd = mq_open("/nvr_buffer",O_RDWR | O_CREAT,S_IWUSR|S_IRUSR,NULL);
     int32_t opt;
     char *url = NULL;
     static const struct option long_opts[] = {

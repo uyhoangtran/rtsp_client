@@ -99,7 +99,7 @@ int32_t UdpConnect(struct sockaddr_in *addr, char *ip, uint32_t port, uint32_t s
         close(sockfd);
         fprintf(stderr, "Error connecting to %s:%d\n", ip, port);
         return -1;
-    }
+    } 
 //#endif
 
     return True;

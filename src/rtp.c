@@ -35,10 +35,10 @@ int32_t CheckRtpSequence(char *buf, void* args)
 
 int32_t CheckRtpHeaderMarker(char *buf, uint32_t size)
 {
-    int32_t marker = CHECK_BIT(buf[0x01], 8);
-
-    if (0x01 == marker)
+    if (buf[0x01] & 0x80)
+    {
         return True;
+    }
     return False;
 }
 

@@ -6,11 +6,18 @@
 #include <limits.h>
 /* According to POSIX.1-2001 */
 #include <sys/select.h>
-
+#include <poll.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <semaphore.h>
 /* According to earlier standards */
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <strings.h>
+#include <mqueue.h>
+#define POLLRDNORM	0x0040
+#define POLLWRNORM	0x0100
 
 #include "rtsp_type.h"
 #include "rtsp_client.h"
@@ -19,6 +26,17 @@
 #include "utils.h"
 #include "rtp.h"
 #include "rtcp.h"
+
+extern mqd_t mqd;
+
+static inline void _printf_debug(char *s)
+{
+    #ifdef RTSP_DEBUG
+    fprintf(stderr,"%s",s);
+    #endif
+}
+
+void* RtspHandleUdpConnect(void* args);
 
 static uint32_t check_url_prefix(char *url)
 {
@@ -169,9 +187,9 @@ void* RtspHandleUdpConnect(void* args)
     int32_t rtpfd = CreateUdpServer(sess->ip, sess->transport.udp.cport_from);
     int32_t rtcpfd = CreateUdpServer(sess->ip, sess->transport.udp.cport_to);
     if(UdpConnect(&sess->rtpsess.addrfrom, sess->ip, sess->transport.udp.sport_from, rtpfd)<0)
-        return NULL;
+        exit(0);
     if(UdpConnect(&sess->rtpsess.addrto, sess->ip, sess->transport.udp.sport_to, rtcpfd)<0)
-        return NULL;
+        exit(0);
     int32_t num = 0x00, size = 4096;
     char    buf[size], framebuf[1920*1080];
     uint32_t length, framelen = 0x00;
@@ -181,13 +199,11 @@ void* RtspHandleUdpConnect(void* args)
     printf("rtp fd : %d, %d\n", rtpfd, rtcpfd);
     printf("ip, port : %s, %d\n", sess->ip, sess->transport.udp.cport_from);
 #endif
-#ifdef SAVE_FILE_DEBUG
     FILE    *fp = fopen("1.264", "a+");
     if (NULL == fp){
         fprintf(stderr, "fopen error!\n");
         return NULL;
     }
-#endif
 
     gettimeofday(&sess->rtpsess.rtcptv, NULL);
     struct timeval timeout;
@@ -219,21 +235,26 @@ void* RtspHandleUdpConnect(void* args)
         }
         if (FD_ISSET(rtpfd, &readfd)){
             num = UdpReceiveData(rtpfd, buf, size, &sess->rtpsess.addrfrom);
+        //    _printf_debug("received rtpfd segment\n");
             if (num < 0x00){
                 fprintf(stderr, "recv error or connection closed!\n");
                 break;
             }
             ParseRtp(buf, num, &sess->rtpsess);
+      //      _printf_debug("parsertp rtpfd segment\n");
             length = sizeof(RtpHeader);
             num = UnpackRtpNAL(buf+length, num-length, framebuf+framelen, framelen);
+       //     _printf_debug("UnpackRtpNAL passed\n");
+            printf("num: %d buff[1]=%x\n",num,buf[1]);
             framelen += num;
             if (True == CheckRtpHeaderMarker(buf, length))
             {
-#ifdef SAVE_FILE_DEBUG
-                fwrite(framebuf, framelen, 1, fp);
+          /*      printf("framelen: %d  \n",framelen);
+                uint16_t mq_num =  mq_send(mqd, framebuf, framelen, 1);
+                printf("send %d data \n",mq_num); */
+                fwrite(framebuf, framelen,1,fp);
                 fflush(fp);
-#endif
-                framelen = 0x00;
+                framelen = 0x00; 
             }
         }
         if (FD_ISSET(rtcpfd, &readfd)){
@@ -263,9 +284,6 @@ void* RtspHandleUdpConnect(void* args)
         }
     }while(1);
 
-#ifdef SAVE_FILE_DEBUG
-    fclose(fp);
-#endif
     close(rtpfd);
     close(rtcpfd);
     sess->status = RTSP_TEARDOWN;
@@ -295,11 +313,12 @@ void* RtspEventLoop(void* args)
         if (RTSP_KEEPALIVE == sess->status){
             if (RTP_AVP_UDP == sess->trans){
                 pthread_t rtpid = 0x00;
-                rtpid = RtspCreateThread(RtspHandleUdpConnect, (void *)sess);
-                if (rtpid <= 0x00){
-                    fprintf(stderr, "RtspCreateThread Error!\n");
-                    break;
-                }
+                // rtpid = RtspCreateThread(RtspHandleUdpConnect, (void *)sess);
+                // if (rtpid <= 0x00){
+                //     fprintf(stderr, "RtspCreateThread Error!\n");
+                //     break;
+                // }
+                RtspHandleUdpConnect((void*) sess);
             }else if (RTP_AVP_TCP == sess->trans){
                 RtspHandleTcpConnect((void *)sess);
             }
@@ -431,3 +450,4 @@ int32_t ParseRtspUrl(char *url, RtspSession *sess)
     return True;
 }
 
+/* Hoang */

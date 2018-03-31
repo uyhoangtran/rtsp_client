@@ -172,7 +172,7 @@ static int32_t RtspSendSetupCommand(RtspSession *sess)
     if (RTP_AVP_TCP == sess->trans){
         num = snprintf(buf, size, CMD_TCP_SETUP, url, sess->cseq);
     }else if (RTP_AVP_UDP == sess->trans){
-        num = snprintf(buf, size, CMD_UDP_SETUP, url, sess->cseq, 30000, 30020);
+        num = snprintf(buf, size, CMD_UDP_SETUP, url, sess->cseq, 30000, 30001);
     }
     if (num < 0x00){
         fprintf(stderr, "%s : snprintf error!\n", __func__);
